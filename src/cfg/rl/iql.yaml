@@ -1,0 +1,32 @@
+name: iql
+
+# * reward information
+reward: gt # gt, pref, or zero; next four fields only used if reward == "pref"
+run_dir: "PATH/TO/YOUR/bnn_pref/_runs/pref/CHANGEME" # for pref reward model loading
+task_name: "${task.name}" # set via CLI override or compose API
+pref_alg: ekf # ekf, sgd
+pref_is_al: True # True, False
+# reward processing: below two are for learned reward relabeling only, not GT
+normalize_reward: True 
+clip_reward: True # clip reward magnitude to [-10,10], applied post normalization
+
+# * training
+n_updates: 1_000_000
+eval_interval: 25_000 
+n_eval_workers: 10 # parallel eval envs
+n_final_eval_episodes: 10
+
+# * optimization
+lr: 3e-4
+batch_size: 256
+gamma: 0.99
+polyak_step_size: 0.005
+
+# * IQL 
+iql_tau: 0.7 # expectile in value loss
+beta: 3.0 # temperature for advantage in actor loss
+exp_adv_clip: 100.0 # clip for advantage in actor loss
+
+# * logging
+log: True
+use_wandb: False

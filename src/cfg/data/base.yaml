@@ -1,0 +1,32 @@
+# * demonstrations
+# for splitting demo into train/test traj. Each split is independetly turned into pref queries
+n_demos: 200 # only used by synthetic tasks
+
+# * rebalancing / pruning trajectories based on return
+n_bins: 10 # number of bins to split trajectories into based on return
+max_count_per_bin: 100 # bin refers to a given trajectory return range
+tokeep: 375  # total number of trajectories to keep for both train + test
+demo_train_frac: 0.8 # fraction of trajectories to keep for train
+
+# prune strategy: (max_count / tokeep / beta)
+# 60/200/15 -> 13000 ish, 5-10% error rate
+# 70/250/10  -> 19900 nq_train, 4-11% error rate
+# 100/375/7 ->  44850 nq_train, 5-20% error rate
+
+noisy_label: True # t2 > t1 always if False; o.w. sample from bradley terry
+bt_beta: 7 # beta for BT model. only used if noisy_label=True; BT logits are sensitive to return magnitudes, so need to normalize returns first to be able to use one beta for all tasks.
+
+# * preference queries
+# take nq_train / nq_test from the already split train/test trajs
+nq_train: 50000
+nq_test: 500
+
+
+# * Data partitioning for streaming algs: EKF, Ensemble, etc.
+nq_init: 5 
+nq_update: 60 # query budget; if -1, use all remaining queries after nq_init
+nsteps: ${get_nsteps:${.nq_train}, ${.nq_init}, ${.nq_update}} #! do not set manually; 
+  # if nq_update = -1, then nsteps = nq_train - nq_init; else nsteps = nq_update
+
+min_traj_len: 50 # only used by d4rl; if <=0, no filtering; otherwise, throw out trajs shorter than this
+segment_size: 50 # if -1, use whole traj. 

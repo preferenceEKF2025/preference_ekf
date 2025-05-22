@@ -1,0 +1,30 @@
+# * model ensembling & active learning
+# ensembling only used for computing predictive & acquisition function (not training)
+active: ${..active}
+M: ${..M}
+use_vmap: True # turned off for scalability experiments. whether to use vectorized NN prediction
+chunk_size: ${..chunk_size}
+acq: "infogain" # "infogain" or "disagreement"
+
+# * NN model
+learning_rate: 0.001
+hidden_sizes: ${network.hidden_sizes}
+n_splits: ${network.n_splits}
+
+# * Subspace Init w/ SGD 
+niters: 420  # Total number of GD steps on warmup data
+bs: 1 # -1 for full batch GD. Otherwise, mini-batch SGD
+l2_reg: 0
+
+# subspace construction, SVD takes full space param array as X[warm_burns::thinning], only keep the top sub_dim components
+warm_burns: 20
+thinning: 2
+sub_dim: 200
+rnd_proj: False # True will use random projection instead of SVD for subspace construction
+
+# * Subspace Inference w/ EKF
+# intuition on Kalman Gain - stronger posterior update <- inc prior_noise, dec obs_noise
+prior_noise: 0.07
+dynamics_noise: 0.0001 # assume constant dynamics w/ gaussian drift on NN params
+obs_noise: 0.07  # noise on emissions, which for pref learning is always +1 for traj2 > traj 1 # 1 rly affects bma 
+iekf: 2 # iterated EKF: multiple linearization of measurement model around current belief instead of prior belief

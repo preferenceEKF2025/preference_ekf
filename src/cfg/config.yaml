@@ -1,0 +1,39 @@
+defaults:
+- _self_ # non-defaults are loaded first for this config
+- task: synthetic
+- data: base
+- network: 32x2
+- mcmc: mh
+- ekf: ekf
+- sgd: sgd
+- rl: iql
+- optional local: default # specifies project dir & wandb login
+# - optional run: debug
+- hydra: default
+
+fhat: linear # only used for synthetic tasks
+M: 15 # number of models / samples for ensembling / EKF sampling
+active: False # active vs. random querying
+chunk_size: 128 # for jax.lax.map()
+seed_vmap: True # whether to use vmap to parallelize run seeds. good for 3 seeds or under
+
+dir_extra: null # extra str to append to a hydra directory
+
+# * sanity check for active learning acquisition functions
+sanity: False # whether to make duplicate queries; for unit testing of acquisiont function.s
+sanity_frac: 0.01 # fraction of non-duplicates in the query pool. 1% of nq_train=5000 is 50, nq_update=50 
+
+paths:
+  results_dir: ${paths.root_dir}/results
+  sweep_dir: ${paths.root_dir}/results_sweep
+  output_dir: ${hydra:runtime.output_dir} # set by results_dir & sweep_dir in hydra config
+  ckpts_dir: ${paths.output_dir}/ckpts
+
+  prefcc:
+    data_dir: ${paths.prefcc_dir}
+
+
+seed: -1 # for jr.key() - initial random seeding
+seeds: 1 # for jax.vmap() - number of seeds to run
+show_fig: False
+save_fig: False
